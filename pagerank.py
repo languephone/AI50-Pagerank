@@ -134,7 +134,6 @@ def iterate_pagerank(corpus, damping_factor):
     for pages in corpus:
         if not corpus[pages]:
             corpus[pages] = set(pages for pages in corpus)
-    print(f"Corpus: {corpus}")
 
     # Create dictionary of which pages link to each page
     links_to_page = crawl_origin(corpus)
@@ -144,21 +143,14 @@ def iterate_pagerank(corpus, damping_factor):
         pagerank_working = copy.deepcopy(pagerank)
 
         for pages in corpus:
-            print(f"Working on page of: {pages}")
             first_sum = (1 - damping_factor) / len(corpus)
             second_sum = 0
-            print(f"Links to current page are: {links_to_page[pages]}")
             # Loop over all pages that link to current page
             for origin in links_to_page[pages]:
-                print(f"Current pagerank: {pagerank_working}")
-                print(f"Working on page {origin} of {links_to_page[pages]}")
-                print(f"Page rank of origin: {pagerank[origin]}")
-                print(f"Links in origin: {len(corpus[origin])}")
                 try:
                     second_sum += pagerank[origin] / len(corpus[origin])
                 except ZeroDivisionError:
                     second_sum += pagerank[origin] / len(corpus)
-                print(f"Second sum is: {second_sum}")
             pagerank_working[pages] = first_sum + (damping_factor * second_sum)
 
         # Check whether iterations have converged
