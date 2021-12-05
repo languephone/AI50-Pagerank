@@ -11,6 +11,7 @@ def main():
     if len(sys.argv) != 2:
         sys.exit("Usage: python pagerank.py corpus")
     corpus = crawl(sys.argv[1])
+    print(f"Corpus: {corpus}")
     ranks = sample_pagerank(corpus, DAMPING, SAMPLES)
     print(f"PageRank Results from Sampling (n = {SAMPLES})")
     for page in sorted(ranks):
@@ -124,8 +125,47 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    # Initialise model with one key for each page in corpus
+    pagerank = {}
+    for pages in corpus:
+        pagerank[pages] = 1 / len(corpus)
 
+    # Create dictionary of which pages link to each page
+    links_to_page = {}
+    # Initialise with blank set
+    for pages in corpus:
+        links_to_page[pages] = set()
+    # Add in actual links
+    for pages in corpus:    
+        # If page doesn't have any links, interpret as one link for every page
+        if not corpus[pages]:
+            links_to_page[pages] = set(pages for pages in corpus)
+        else:
+            for link in corpus[pages]:
+                links_to_page[link].add(pages)
+    print(f"Links to page: {links_to_page}")
+
+    # Calculate page rank repeatedly
+    for i in range(10000):
+        for pages in corpus:
+            print(f"Working on page of: {pages}")
+            first_sum = (1 - damping_factor) / len(corpus)
+            second_sum = 0
+            print(f"Links to current page are: {links_to_page[pages]}")
+            # Loop over all pages that link to current page
+            for origin in links_to_page[pages]:
+                print(f"Working on page {origin} of {links_to_page[pages]}")
+                print(f"Page rank of origin: {pagerank[origin]}")
+                print(f"Links in origin: {len(corpus[origin])}")
+                try:
+                    second_sum += pagerank[origin] / len(corpus[origin])
+                except ZeroDivisionError:
+                    second_sum += pagerank[origin] / len(corpus)
+                print(f"Second sum is: {second_sum}")
+            pagerank[pages] = first_sum + (damping_factor * second_sum)
+            print(pagerank)
+
+    return pagerank
 
 if __name__ == "__main__":
     main()
