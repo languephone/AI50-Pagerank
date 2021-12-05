@@ -130,29 +130,35 @@ def iterate_pagerank(corpus, damping_factor):
     for pages in corpus:
         pagerank[pages] = 1 / len(corpus)
 
+    # If page doesn't have any links, interpret as one link for every page
+    for pages in corpus:
+        if not corpus[pages]:
+            corpus[pages] = set(pages for pages in corpus)
+    print(f"Corpus: {corpus}")
+
     # Create dictionary of which pages link to each page
     links_to_page = crawl_origin(corpus)
-    # print(f"Links to page: {links_to_page}")
 
     # Calculate page rank repeatedly
     while True:
         pagerank_working = copy.deepcopy(pagerank)
 
         for pages in corpus:
-            # print(f"Working on page of: {pages}")
+            print(f"Working on page of: {pages}")
             first_sum = (1 - damping_factor) / len(corpus)
             second_sum = 0
-            # print(f"Links to current page are: {links_to_page[pages]}")
+            print(f"Links to current page are: {links_to_page[pages]}")
             # Loop over all pages that link to current page
             for origin in links_to_page[pages]:
-                # print(f"Working on page {origin} of {links_to_page[pages]}")
-                # print(f"Page rank of origin: {pagerank[origin]}")
-                # print(f"Links in origin: {len(corpus[origin])}")
+                print(f"Current pagerank: {pagerank_working}")
+                print(f"Working on page {origin} of {links_to_page[pages]}")
+                print(f"Page rank of origin: {pagerank[origin]}")
+                print(f"Links in origin: {len(corpus[origin])}")
                 try:
                     second_sum += pagerank[origin] / len(corpus[origin])
                 except ZeroDivisionError:
                     second_sum += pagerank[origin] / len(corpus)
-                # print(f"Second sum is: {second_sum}")
+                print(f"Second sum is: {second_sum}")
             pagerank_working[pages] = first_sum + (damping_factor * second_sum)
 
         # Check whether iterations have converged
@@ -188,6 +194,19 @@ def crawl_origin(corpus):
             for link in corpus[page]:
                 links_to_page[link].add(page)
     return links_to_page
+
+def update_corpus(corpus):
+    """
+    For use with iterate_pagerank function.  Fulfils requirement that a page 
+    that has no links at all should be interpreted as having one link for every 
+    page in the corpus (including itself).
+    """
+
+    for page in corpus:
+        if not corpus[page]:
+            corpus[page] = set(page for page in corpus)
+
+    return corpus
 
 if __name__ == "__main__":
     main()
