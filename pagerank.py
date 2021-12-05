@@ -71,8 +71,7 @@ def transition_model(corpus, page, damping_factor):
     else:
         # Add portion of damping factor to each link
         for link in corpus[page]:
-            distribution = damping_factor / link_count
-            model[link] = distribution
+            model[link] += damping_factor / link_count
 
     return model
 
@@ -88,7 +87,9 @@ def sample_pagerank(corpus, damping_factor, n):
     """
     pagerank = {}
 
-    sample_start = random.choice(list(corpus))
+    for i in range(n):
+        sample_start = random.choice(list(corpus))
+        next_page_model = transition_model(corpus, sample_start, damping_factor)
 
 
 def iterate_pagerank(corpus, damping_factor):
