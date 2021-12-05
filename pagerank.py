@@ -162,6 +162,7 @@ def iterate_pagerank(corpus, damping_factor):
 
     return pagerank
 
+
 def crawl_origin(corpus):
     """
     Parse a directory of HTML pages and check for links from other pages.
@@ -179,6 +180,7 @@ def crawl_origin(corpus):
         for link in corpus[page]:
             links_to_page[link].add(page)
     return links_to_page
+
 
 def update_corpus(corpus):
     """
