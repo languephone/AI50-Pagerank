@@ -2,6 +2,7 @@ import os
 import random
 import re
 import sys
+import copy
 
 DAMPING = 0.85
 SAMPLES = 10000
@@ -131,22 +132,12 @@ def iterate_pagerank(corpus, damping_factor):
         pagerank[pages] = 1 / len(corpus)
 
     # Create dictionary of which pages link to each page
-    links_to_page = {}
-    # Initialise with blank set
-    for pages in corpus:
-        links_to_page[pages] = set()
-    # Add in actual links
-    for pages in corpus:    
-        # If page doesn't have any links, interpret as one link for every page
-        if not corpus[pages]:
-            links_to_page[pages] = set(pages for pages in corpus)
-        else:
-            for link in corpus[pages]:
-                links_to_page[link].add(pages)
+    links_to_page = crawl_origin(corpus)
     print(f"Links to page: {links_to_page}")
 
     # Calculate page rank repeatedly
     for i in range(10000):
+
         for pages in corpus:
             print(f"Working on page of: {pages}")
             first_sum = (1 - damping_factor) / len(corpus)
@@ -166,6 +157,28 @@ def iterate_pagerank(corpus, damping_factor):
             print(pagerank)
 
     return pagerank
+
+def crawl_origin(corpus):
+    """
+    Parse a directory of HTML pages and check for links from other pages.
+    Return a dictionary where each key is a page, and values are
+    a set of all pages that link TO that page.
+    """
+
+    # Initialise with blank set
+    links_to_page = {}
+    for page in corpus:
+        links_to_page[page] = set()
+
+    # Add in actual links
+    for page in corpus:
+        # If page doesn't have any links, interpret as one link for every page
+        if not corpus[page]:
+            links_to_page[page] = set(page for page in corpus)
+        else:
+            for link in corpus[page]:
+                links_to_page[link].add(page)
+    return links_to_page
 
 if __name__ == "__main__":
     main()
