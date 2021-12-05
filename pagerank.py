@@ -87,9 +87,32 @@ def sample_pagerank(corpus, damping_factor, n):
     """
     pagerank = {}
 
+    # Initialise model with one key for each page in corpus
+    for pages in corpus:
+        pagerank[pages] = 0
+
+    # Generate staring page at random
+    sample_start = random.choice(list(corpus))
+
+    # Generate remaining samples based on transition model
     for i in range(n):
-        sample_start = random.choice(list(corpus))
         next_page_model = transition_model(corpus, sample_start, damping_factor)
+
+        # Convert transition model to list for use in random.choices function
+        weighting = list(next_page_model.values())
+
+        # Select next page based on transition model options & weighting
+        next_page = random.choices(list(next_page_model), weights=weighting)[0]
+        pagerank[next_page] += 1
+
+        # Redefine start page for next loop
+        sample_start = next_page
+
+    # Convert raw count of page views to probability distribution
+    for page in pagerank:
+        pagerank[page] = pagerank[page] / n
+
+    return pagerank
 
 
 def iterate_pagerank(corpus, damping_factor):
