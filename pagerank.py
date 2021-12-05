@@ -12,7 +12,6 @@ def main():
     if len(sys.argv) != 2:
         sys.exit("Usage: python pagerank.py corpus")
     corpus = crawl(sys.argv[1])
-    print(f"Corpus: {corpus}")
     ranks = sample_pagerank(corpus, DAMPING, SAMPLES)
     print(f"PageRank Results from Sampling (n = {SAMPLES})")
     for page in sorted(ranks):
@@ -133,28 +132,38 @@ def iterate_pagerank(corpus, damping_factor):
 
     # Create dictionary of which pages link to each page
     links_to_page = crawl_origin(corpus)
-    print(f"Links to page: {links_to_page}")
+    # print(f"Links to page: {links_to_page}")
 
     # Calculate page rank repeatedly
-    for i in range(10000):
+    while True:
+        pagerank_working = copy.deepcopy(pagerank)
 
         for pages in corpus:
-            print(f"Working on page of: {pages}")
+            # print(f"Working on page of: {pages}")
             first_sum = (1 - damping_factor) / len(corpus)
             second_sum = 0
-            print(f"Links to current page are: {links_to_page[pages]}")
+            # print(f"Links to current page are: {links_to_page[pages]}")
             # Loop over all pages that link to current page
             for origin in links_to_page[pages]:
-                print(f"Working on page {origin} of {links_to_page[pages]}")
-                print(f"Page rank of origin: {pagerank[origin]}")
-                print(f"Links in origin: {len(corpus[origin])}")
+                # print(f"Working on page {origin} of {links_to_page[pages]}")
+                # print(f"Page rank of origin: {pagerank[origin]}")
+                # print(f"Links in origin: {len(corpus[origin])}")
                 try:
                     second_sum += pagerank[origin] / len(corpus[origin])
                 except ZeroDivisionError:
                     second_sum += pagerank[origin] / len(corpus)
-                print(f"Second sum is: {second_sum}")
-            pagerank[pages] = first_sum + (damping_factor * second_sum)
-            print(pagerank)
+                # print(f"Second sum is: {second_sum}")
+            pagerank_working[pages] = first_sum + (damping_factor * second_sum)
+
+        # Check whether iterations have converged
+        max_diff = 0
+        for page in pagerank_working:
+            if abs(pagerank[page] - pagerank_working[page]) > max_diff:
+                max_diff = abs(pagerank[page] - pagerank_working[page])
+        # Stop loop when no value changes by more than 0.001
+        if max_diff <= 0.001:
+            break
+        pagerank = pagerank_working
 
     return pagerank
 
