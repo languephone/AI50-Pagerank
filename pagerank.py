@@ -147,10 +147,7 @@ def iterate_pagerank(corpus, damping_factor):
             second_sum = 0
             # Loop over all pages that link to current page
             for origin in links_to_page[pages]:
-                try:
-                    second_sum += pagerank[origin] / len(corpus[origin])
-                except ZeroDivisionError:
-                    second_sum += pagerank[origin] / len(corpus)
+                second_sum += pagerank[origin] / len(corpus[origin])
             pagerank_working[pages] = first_sum + (damping_factor * second_sum)
 
         # Check whether iterations have converged
@@ -179,12 +176,8 @@ def crawl_origin(corpus):
 
     # Add in actual links
     for page in corpus:
-        # If page doesn't have any links, interpret as one link for every page
-        if not corpus[page]:
-            links_to_page[page] = set(page for page in corpus)
-        else:
-            for link in corpus[page]:
-                links_to_page[link].add(page)
+        for link in corpus[page]:
+            links_to_page[link].add(page)
     return links_to_page
 
 def update_corpus(corpus):
